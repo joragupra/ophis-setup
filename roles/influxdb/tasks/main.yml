@@ -1,0 +1,7 @@
+---
+  - name: update repos and installs influxdb
+    shell: curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+  - name: add distribution repo for influxdb
+    shell: "echo 'deb https://repos.influxdata.com/{{ distribution_id }} {{ distribution_codename }} stable' | tee /etc/apt/sources.list.d/influxdb.list"
+  - name: install influxdb
+    shell: apt-get update && apt-get install influxdb

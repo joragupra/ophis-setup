@@ -1,0 +1,10 @@
+---
+  - name: Read distribution id from lbs-release file
+    script: search_var_in_lsbrelease.sh /etc/lsb-release identifier
+    register: dist_id
+  - name: Read distribution codename from lbs-release file
+    script: search_var_in_lsbrelease.sh /etc/lsb-release codename
+    register: codename
+  - set_fact:
+      distribution_id: "{{ dist_id.stdout_lines|join('')|lower }}"
+      distribution_codename: "{{ codename.stdout_lines|join('')|lower }}"

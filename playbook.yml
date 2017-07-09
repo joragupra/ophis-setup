@@ -1,0 +1,8 @@
+---
+- hosts: timeseriesdb
+  become: yes
+  remote_user: root
+  
+  roles:
+    - role: ubuntu_info
+    - role: influxdb
