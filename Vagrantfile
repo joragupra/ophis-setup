@@ -15,6 +15,8 @@ Vagrant.configure("2") do |config|
     ansible.verbose = "v"
     ansible.playbook = "playbook.yml"
     #ansible.inventory_path = "provision/ansible_hosts"
+
+    config.vm.network "forwarded_port", guest: 8083, host: 8083
   end
 
 end

@@ -5,3 +5,7 @@
     shell: "echo 'deb https://repos.influxdata.com/{{ distribution_id }} {{ distribution_codename }} stable' | tee /etc/apt/sources.list.d/influxdb.list"
   - name: install influxdb
     shell: apt-get update && apt-get install influxdb
+  - name: start up influxdb service
+    service:
+      name: influxdb
+      state: started
