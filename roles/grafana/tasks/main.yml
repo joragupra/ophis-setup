@@ -1,0 +1,11 @@
+---
+  - name: update repos for grafana
+    shell: echo "deb https://packagecloud.io/grafana/stable/debian/ jessie main" >> /etc/apt/sources.list
+  - name: add grafana key to allow installation of signed packages
+    shell: curl -sL https://packagecloud.io/gpg.key | apt-key add -
+  - name: install grafana
+    shell: apt-get update && apt-get install grafana
+  - name: start up grafana service
+    service:
+      name: grafana-server
+      state: started
