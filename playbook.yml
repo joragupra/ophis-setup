@@ -7,3 +7,4 @@
     - role: ubuntu_info
     - role: influxdb
     - role: grafana
+    - role: test_installation

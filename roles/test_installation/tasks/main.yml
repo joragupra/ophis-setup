@@ -1,0 +1,41 @@
+---
+  - name: create testing database
+    shell: influx -execute 'CREATE DATABASE localtest'
+  - name: create grafana api key
+    uri:
+      url: http://localhost:3000/api/auth/keys
+      method: POST
+      force_basic_auth: yes
+      user: admin
+      password: admin
+      return_content: yes
+      body: {"role":"Admin","name":"testdata_api_key36"}
+      body_format: json
+    register: response
+  - set_fact: apikey="{{ ((response.content) | from_json).key }}"
+  - name: show generated API key
+    debug:
+      msg: "{{ apikey }}"
+  - name: create influxdb datasource
+    uri:
+      url: http://localhost:3000/api/datasources
+      method: POST
+      headers:
+        Authorization: "Bearer {{ apikey }}"
+      return_content: yes
+      body: {"name":"local_timeseriesdb","type":"influxdb","url":"http://localhost:8086","access":"proxy","database":"localtest","basicAuth":false}
+      body_format: json
+  - name: create influxdb datasource
+    uri:
+      url: http://localhost:3000/api/dashboards/db
+      method: POST
+      headers:
+        Authorization: "Bearer {{ apikey }}"
+      return_content: yes
+      body: {"dashboard":{"id":null,"title":"CPU Production Overview","tags":["templated"],"timezone":"browser","rows":[{"collapse":false,"height":"250px","panels":[{"aliasColors":{},"bars":false,"dashLength":10,"dashes":false,"datasource":"local_timeseriesdb","fill":1,"id":1,"legend":{"avg":false,"current":false,"max":false,"min":false,"show":true,"total":false,"values":false},"lines":true,"linewidth":1,"links":[],"nullPointMode":"null","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"spaceLength":10,"span":12,"stack":false,"steppedLine":false,"targets":[{"alias":"cpu","dsType":"influxdb","groupBy":[{"params":["$__interval"],"type":"time"},{"params":["null"],"type":"fill"}],"hide":true,"orderByTime":"ASC","policy":"default","query":"SELECT value FROM cpu_load_short","rawQuery":true,"refId":"A","resultFormat":"time_series","select":[[{"params":["value"],"type":"field"},{"params":[],"type":"mean"}]],"tags":[]}],"thresholds":[],"timeFrom":null,"timeShift":null,"title":"CPU","tooltip":{"shared":true,"sort":0,"value_type":"individual"},"type":"graph","xaxis":{"buckets":null,"mode":"time","name":null,"show":true,"values":[]},"yaxes":[{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true}]}],"repeat":null,"repeatIteration":null,"repeatRowId":null,"showTitle":false,"title":"Dashboard Row","titleSize":"h6"}],"schemaVersion":6,"version":0},"overwrite":false}
+      body_format: json
+  - name: copy script to send CPU data to local influxdb
+    copy:
+      src: transmit_cpu.sh
+      dest: /tmp
+      mode: 0775
