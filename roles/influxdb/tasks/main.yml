@@ -5,6 +5,13 @@
     shell: "echo 'deb https://repos.influxdata.com/{{ distribution_id }} {{ distribution_codename }} stable' | tee /etc/apt/sources.list.d/influxdb.list"
   - name: install influxdb
     shell: apt-get update && apt-get install influxdb
+  - name: rename original influxdb configuration file
+    shell: mv /etc/influxdb/influxdb.conf /etc/influxdb/influxdb.conf.original
+  - name: set up influxdb configuration file
+    copy:
+      src: influxdb.conf
+      dest: /etc/influxdb
+      mode: 0644
   - name: start up influxdb service
     service:
       name: influxdb
